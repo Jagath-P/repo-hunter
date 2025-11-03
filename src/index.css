@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #111111;
+  --bg-secondary: #222222;
+  --accent-primary: #ff4e4e;
+  --accent-secondary: #ff8989;
+  --text-primary: #ffffff;
+  --text-secondary: #999999;
+}
+
+[data-theme = "light"] {
+  --bg-primary: #f9f9f9;
+  --bg-secondary: #ffffff;
+  --accent-primary: #e11d48; 
+  --accent-secondary: #f43f5e; 
+  --text-primary: #111111;
+  --text-secondary: #444444;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
