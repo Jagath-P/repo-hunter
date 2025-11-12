@@ -1,6 +1,5 @@
 import express from "express";
 import { Octokit } from "@octokit/core";
-import axios from "axios";
 const router = express.Router();
 
 const octokit = new Octokit({
@@ -8,56 +7,44 @@ const octokit = new Octokit({
 });
 router.get("/", async (req, res) => {
   try {
-    // const { topics = [], languages = [] } = req.query();
-
-    const topics = [
-      [
-        "blockchain",
-        "cryptocurrency",
-        "ethereum",
-        "cryptography",
-        "smart-contracts",
-        "web3",
-      ],
-    ];
+    const { topics = [] } = req.body;
+    const modifiedTopics = [];
     /*
-     const topics=[
-     [
-     "operating-systems",
-     "low-level",
-     "networking",
-     "systems-programming",
-     "security",
-     "embedded"
-     ]
-     ]
-    
-    const languages = ["c" ,"go", "python"];
-    const topicPart = topics.map((t) => `topic:${t}`).join(" OR ");
-    const languagepart = languages.map((l) => `language:${l}`).join(" ");
-    // const keywordpart = keywords.join(" OR ");
-    */
-
-    // const query = `${topicPart} ${languagepart} good-first-issues:>0`;
-    //const query = "topic:operating-systems language:c good-first-issues:>0";
-
-    //  console.log("Search query:", query);
-    // const topics = ["docker", "kubernetes", "api"]; // 10 topics
-    const languages = [
-      "python",
-      "go",
-      "cpp", // 8 languages
+    const topics = [
+      "operating-systems",
+      "low-level",
+      "networking",
+      "systems-programming",
+      "security",
+      "embedded",
     ];
 
-    // Search for these words in readme or topics
-    const languagePart = languages.map((l) => `language:${l}`).join(" OR ");
-    //const query = `${topicPart} ${languagePart}  stars:>100`;
-    // const query = `kubernetes in:name,topics,readme,description  stars:>100`;
-    //const query = `topic:kubernetes language:go stars:>100`;
+    
+     const topics = [
+      "blockchain",
+      "cryptocurrency",
+      "ethereum",
+      "cryptography",
+      "smart-contracts",
+      "web3",
+    ];
+    */
+    for (let i = 0; i < topics.length; i += 6) {
+      modifiedTopics.push(topics.splice(i, i + 6));
+    }
+    /*
+     TRY THIS IF YOU ARE NOT GETTING RESULTS 
+     const topics = ["docker", "kubernetes", "api"]; // 10 topics
+     const topicPart=topics.join(" OR ");
+     const query = `${topicPart} in:name,topics,readme,description  stars:>100`
+     ;
+     OR try this simplest query
+     const query=`topic:kubernetes language:go stars:>100`;
+     */
     const allrepos = [];
-    for (const topic of topics) {
-      const topicPart = topic.join(" OR ");
-      const query = `${topicPart} in:readme,topics,description,name archived:false mirror:false good-first-issues:>4 stars:>100`;
+    for (const chunk of modifiedTopics) {
+      const topicPart = chunk.join(" OR ");
+      const query = `${topicPart} in:readme,topics,description,name archived:false mirror:false template:false good-first-issues:>4 help-wanted-issues:>4 `;
       const response = await octokit.request("GET /search/repositories", {
         q: query,
         order: "desc",
@@ -77,6 +64,7 @@ router.get("/", async (req, res) => {
       stars: repo.stargazers_count,
       url: repo.html_url,
       language: repo.language,
+      score: repo.score,
     }));
     console.log("Final repos :", repos);
     return res.json(repos);
