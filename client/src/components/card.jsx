@@ -4,14 +4,13 @@ import * as clusterStorage from "../utils/clusterStorage";
 
 export default function Card({ repo, clusterName, onRemove }) {
   const navigate = useNavigate();
-
-  // Saving Repos
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [helpfulIssues, setHelpfulIssues] = useState([]);
+  const [isSaved, setIsSaved] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [allClusters, setAllClusters] = useState([]);
   const [repoClusters, setRepoClusters] = useState([]);
   const menuRef = useRef(null);
-
-  const [isSaved, setIsSaved] = useState(false);
   useEffect(() => {
     setIsSaved(clusterStorage.IsRepoSavedInAnyCluster(repo.fullname));
   }, [repo.fullname]);
@@ -22,16 +21,29 @@ export default function Card({ repo, clusterName, onRemove }) {
         setShowMenu(false);
     }
     if (showMenu) document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showMenu]);
+  const handleClick = async () => {
+    console.log("Card clicked:", repo.fullname);
 
-
-  const handleClick = () => {
-    //FUNCTIONALITY JAGGU/PRASHU
-    navigate(`/repo/${repo.owner_login}/${repo.name}`);
+    // Saving Repos
+    navigate(`/repo/${repo.owner.login}/${repo.name}`);
+    try {
+      const response = await fetch(`http://localhost:5000/api/issues`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ repo: repo }),
+      });
+      if (response.ok) {
+        const issues = await response.json();
+        setHelpfulIssues(issues);
+        console.log("issues", issues);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const refreshMenuData = () => {
@@ -76,7 +88,9 @@ export default function Card({ repo, clusterName, onRemove }) {
   };
 
   const inClusters = repoClusters;
-  const availableClusters = allClusters.filter(c => !repoClusters.includes(c));
+  const availableClusters = allClusters.filter(
+    (c) => !repoClusters.includes(c)
+  );
 
   return (
     <div
@@ -139,7 +153,6 @@ export default function Card({ repo, clusterName, onRemove }) {
               + Create New Cluster
             </button>
             <hr className="my-1 border-[var(--border-muted)]" />
-
             {/* 2. In Clusters (Remove) */}
             {inClusters.map((cluster) => (
               <button
@@ -151,7 +164,6 @@ export default function Card({ repo, clusterName, onRemove }) {
                 <span className="text-xs text-red-500">Remove</span>
               </button>
             ))}
-
             {/* 3. Available Clusters (Add) */}
             {availableClusters.map((cluster) => (
               <button

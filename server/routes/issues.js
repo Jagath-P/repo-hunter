@@ -7,7 +7,7 @@ const octokit = new Octokit({
 });
 
 router.post("/", async (req, res) => {
-  const { owner, repo } = req.body;
+  const { repo } = req.body;
   /*
   const repo = {
     owner: {
@@ -18,22 +18,19 @@ router.post("/", async (req, res) => {
     full_name: "dtrupenn/Tetris",
   };
   */
+  const query = `repo:${repo.owner.login}/${repo.name} type:issue label:"good first issue" `;
   try {
-    const response = await octokit.request(
-      "GET /repos/{owner}/{repo}/stats/commit_activity",
-      {
-        owner: owner,
-        repo: repo,
-        headers: {
-          "X-GitHub-Api-Version": "2022-11-28",
-        },
+    const response = await octokit.request("GET /search/issues", {
+      q: query,
+      headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
       },
-    );
-    res.json(response.data);
+    });
+    console.log("TOTAL COUNT:", response.data.total_count);
+    res.json(response.data.total_count);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to fetch commit data" });
+    res.status(500).json({ error: "Failed to fetch issues data" });
   }
 });
-
 export default router;
