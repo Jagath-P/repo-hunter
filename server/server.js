@@ -1,6 +1,7 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 
 // --- Routes --- //
 
@@ -11,7 +12,7 @@ import issues from "./routes/issues.js";
 import repoDeets from "./routes/repoDeets.js";
 
 const app = express();
-dotenv.config();
+
 app.use(express.json());
 app.use(
   cors({
@@ -19,6 +20,7 @@ app.use(
     credentials: true,
   }),
 );
+console.log("GITHUB_TOKEN exists:", !!process.env.GITHUB_TOKEN);
 
 app.get("/", (req, res) => {
   res.send("Hello world!!");

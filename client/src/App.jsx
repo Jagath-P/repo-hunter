@@ -9,7 +9,6 @@ import HomePage from "./pages/HomePage";
 import Insights from "./pages/Insights";
 import Clusters from "./pages/Clusters";
 
-
 function App() {
   const [domains, setDomains] = useState([]);
   const [selectedDomains, setSelectedDomains] = useState([]);

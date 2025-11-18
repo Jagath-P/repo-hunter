@@ -26,24 +26,12 @@ export default function Card({ repo, clusterName, onRemove }) {
     };
   }, [showMenu]);
 
-
   const handleClick = async () => {
     console.log("Card clicked:", repo.fullname);
+
+    // Saving Repos
+
     navigate(`/repo/${repo.owner.login}/${repo.name}`);
-    try {
-      const response = await fetch(`http://localhost:5000/api/issues`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repo: repo }),
-      });
-      if (response.ok) {
-        const issues = await response.json();
-        setHelpfulIssues(issues);
-        console.log("issues", issues);
-      }
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   const refreshMenuData = () => {
@@ -84,14 +72,16 @@ export default function Card({ repo, clusterName, onRemove }) {
 
   const handleRemoveClick = (e) => {
     e.stopPropagation();
-    const confirmed = window.confirm(`Remove ${repo.fullname} from "${clusterName}"?`);
+    const confirmed = window.confirm(
+      `Remove ${repo.fullname} from "${clusterName}"?`,
+    );
     if (!confirmed) return;
     onRemove(repo.fullname);
   };
 
   const inClusters = repoClusters;
   const availableClusters = allClusters.filter(
-    (c) => !repoClusters.includes(c)
+    (c) => !repoClusters.includes(c),
   );
 
   return (
@@ -132,10 +122,11 @@ export default function Card({ repo, clusterName, onRemove }) {
         ) : (
           // "Add to Cluster" button (on Search Page)
           <button
-            className={`rounded-md px-3 py-1 text-sm text-white ${isSaved
-              ? "bg-[var(--text-tertiary)] hover:bg-[var(--text-secondary)]"
-              : "bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)]"
-              }`}
+            className={`rounded-md px-3 py-1 text-sm text-white ${
+              isSaved
+                ? "bg-[var(--text-tertiary)] hover:bg-[var(--text-secondary)]"
+                : "bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)]"
+            }`}
             onClick={handleMenuToggle}
           >
             {isSaved ? "Saved" : "Save"}
